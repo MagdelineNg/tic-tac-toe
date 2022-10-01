@@ -1,7 +1,10 @@
+// import { useContext } from "react";
+// import { GameContext } from "../client/src/GameContext";
 const express = require("express");
 const cors = require("cors");
-const socket = require('socket.io')
+const socket = require("socket.io");
 const userRoutes = require("./routers/userRoutes");
+const User = require("./model/userModel");
 
 const app = express();
 require("./db/mongoose");
@@ -12,6 +15,7 @@ app.use(express.json());
 
 app.use("/api/auth", userRoutes);
 
+
 const port = process.env.PORT;
 
 const server = app.listen(port, () => {
@@ -20,18 +24,23 @@ const server = app.listen(port, () => {
 
 const io = socket(server, {
   cors: {
-    origin: "http://localhost:3000",   //whr client lives 
+    origin: "http://localhost:3000", //whr client lives
     credentials: true,
   },
 });
+//const { setGameStarted, isGameStarted } = useContext(GameContext);
 
-io.on("connection", (socket, client)=> {
-  console.log("New socket connected: " + socket.id)
+io.on("connection", (socket, client) => {
+  console.log("New socket connected: " + socket.id);
+  socket.emit("session", {
+    sessionId: socket.sessionID,
+    userID: socket.userID,
+  });
 
-
-  socket.on("join_game", async (socketId) => {
-    const connectedSockets = io.sockets.adapter.rooms.get(socketId)
-    console.log("number of connected socket: ", connectedSockets)
+  socket.on("join_game", async (rivalUsername, currentUser) => {
+    console.log("JOIN_GAME PARAMS: ", rivalUsername, currentUser);
+    const connectedSockets = io.sockets.adapter.rooms.get(rivalUsername);
+    console.log("number of connected socket to rival room: ", connectedSockets);
 
     const socketRooms = Array.from(socket.rooms.values()).filter(
       (r) => r !== socket.id
@@ -45,28 +54,60 @@ io.on("connection", (socket, client)=> {
         error: "Room is full. Please choose another room to play!",
       });
     } else {
-      await socket.join(socketId);
-      socket.emit("room_joined");
-    }
+      //first player waiting in room
+      if (connectedSockets && connectedSockets.size === 1) {
+        console.log("joining rival's room called: ", rivalUsername);
+        await socket.join(rivalUsername);
 
-    if (io.sockets.adapter.rooms.get(message.roomId).size === 2) {
-      socket.emit("start_game", { start: true, symbol: "x" });
-      socket
-        .to(message.roomId)
-        .emit("start_game", { start: false, symbol: "o" });
+        socket.emit("room_joined", {
+          isStartGame: true,
+          roomId: rivalUsername,
+        });
+
+        if (io.sockets.adapter.rooms.get(rivalUsername).size === 2) {
+          console.log("both players in!!!");
+          //send to second player
+          socket.emit("start_game", { start: true, symbol: "x" });
+          console.log("rivalUsername start second: ", rivalUsername);
+          //send to first player
+          socket
+            .to(rivalUsername)
+            .emit("start_game", { start: false, symbol: "o" });
+        }
+      } else {
+        //you are first player
+        socket.emit("room_joined", { isStartGame: false, roomId: currentUser });
+        console.log("joining own room called: ", currentUser);
+        socket.join(currentUser);
+      }
     }
+  });
+
+  socket.on("update_game", (newMatrix) => {
+    const roomId =Array.from(socket.rooms.values()).filter(
+      (r) => r !== socket.id
+    );
+    console.log("ROOMID FOR UPDATE_GAME: ", roomId[0])
+    console.log("MATRIX FOR UPDATE_GAME: ", newMatrix)
+    socket.to(roomId[0]).emit("on_game_update", newMatrix);
+  });
+
+  socket.on("game_win", (message) => {
+    const roomId =Array.from(socket.rooms.values()).filter(
+      (r) => r !== socket.id
+    );
+    // User.updateOne({})
+    socket.to(roomId).emit("on_game_win", message);
   })
 
+});
 
-  // socket.on("join-room", (username) => {
-  //   console.log(username)
-  // })
+// socket.on("join-room", (username) => {
+//   console.log(username)
+// })
 
-  // client.emit("join-room", (username))
+// client.emit("join-room", (username))
 
-  // socket.on("add-user", (userId) => {
-  //   onlineUsers.set(userId, socket.id);
-  // });
-})
-
-
+// socket.on("add-user", (userId) => {
+//   onlineUsers.set(userId, socket.id);
+// });

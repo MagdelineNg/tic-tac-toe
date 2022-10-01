@@ -12,7 +12,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         min: 8,
-    }
+    },
+    // socketId:{
+    //     type: String
+    // }
 })
 
 module.exports = mongoose.model("Users", userSchema)

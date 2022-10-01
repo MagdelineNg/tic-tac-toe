@@ -3,7 +3,7 @@ const User = require("../model/userModel");
 
 module.exports.register = async (req, res, next) => {
   try {
-    const { user, password } = req.body;
+    const { user, password, socketId } = req.body;
 
     const usernameCheck = await User.findOne({ user });
     if (usernameCheck) {
@@ -13,6 +13,7 @@ module.exports.register = async (req, res, next) => {
     const newUser = await User.create({
       user,
       password: hashedPassword,
+      socketId,
     });
     return res.json({ status: true, newUser });
   } catch (e) {
@@ -37,6 +38,8 @@ module.exports.login = async (req, res, next) => {
         return res.json({ msg: "Incorrect username or password", status: false });
     }
 
+    //create map of user: socket to get socketid later on for room creation
+
     return res.json({ status: true, existingUser });
   } catch (e) {
     console.log("login controller");
@@ -58,3 +61,26 @@ module.exports.checkRival = async (req, res, next) => {
         next(e)
     }
 }
+
+module.exports.getPastGames = async (req, res, mext) => {
+  try{
+    user = req.params.username
+    console.log("user in getpastgames: ", user)
+    const currentUserMatrix = await User.findOne({ user}).select("allMatrix")
+    return res.json(currentUserMatrix)
+  }catch(e){
+    console.log(e.message)
+  }
+}
+
+// module.exports.createGameRoom = async(req, res, next)=> {
+//     const {roomId, currentUser} = req.body
+//     try{
+//         console.log("CURRENT USER PASSED SUC:", currentUser)
+//         let doc = await User.findOneAndUpdate({user: currentUser.user}, {socketId: roomId}, {new: true})
+//         console.log(doc)
+//     }catch(e){
+//         console.log('saving game room id failed: ', e)
+//         next(e)
+//     }
+// }
