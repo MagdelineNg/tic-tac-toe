@@ -1,0 +1,67 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; 
+  padding: 1rem 0.5rem;
+}
+
+.instructions {
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  background: #000;
+  color: #fff;
+  padding: 0.25rem;
+  position: relative;
+  bottom: -10px;
+}
+
+.instructions > svg {
+  margin-right: 0.25rem;
+}
+
+.offscreen {
+  position: absolute;
+  left: -9999px;
+}
+
+.hide {
+  display: none;
+}
+
+.valid {
+  color: limegreen;
+  margin-left: 0.25rem;
+}
+
+.invalid {
+  color: red;
+  margin-left: 0.25rem;
+}
+
+.warning {
+  font-size: 0.85rem;
+  color: red;
+  text-align: center;
+}
+
+.mainContainer {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+}
+
+.loginContainer {
+	width: 400px;
+	height: 700px;
+	border-radius: 5px;
+	background-color: #e4dace;
+	position: absolute;
+	top: 50%;
+	margin-top: -360px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	box-shadow: 5px 5px 14px -2px #91785c;
+}

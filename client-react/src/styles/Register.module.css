@@ -1,0 +1,74 @@
+
+
+.logoContainer {
+  height: 50px;
+  width: 100%;
+  text-align: center;
+  padding-top: 100px;
+  font-size: large;
+  font-weight: 500;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.inputContainer {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-direction: column;
+}
+
+.warningContainer {
+  height: 20px;
+}
+
+.loginInput {
+  width: 70%;
+  height: 40px;
+  align-self: center;
+  background-color: #f0dfc6;
+  border: solid 2px #c9b18a;
+  border-radius: 3px;
+  transition-duration: 0.2s;
+  margin-bottom: 10px;
+}
+
+.loginInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px #b3986e;
+  transition-duration: 0.2s;
+}
+
+.buttonContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginButton {
+  width: 200px;
+  height: 50px;
+  align-self: center;
+  font-size: large;
+  background-color: #ddccae;
+  color: grey;
+  border-radius: 30px;
+  border: 2px solid #d8be92;
+  transition-duration: 0.4s;
+}
+
+.loginButton:hover {
+  background-color: #d3b683;
+  transition-duration: 0.4s;
+}
+
+.registerContainer {
+  text-align: center;
+  color: black;
+}
+
+.link {
+  text-decoration: none;
+  color: black;
+}

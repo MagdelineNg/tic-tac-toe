@@ -1,0 +1,42 @@
+.joinGameContainer {
+	width: 300px;
+	height: 500px;
+	border-radius: 5px;
+	background-color: #e4dace;
+	position: absolute;
+	top: 50%;
+	margin-top: -360px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	box-shadow: 5px 5px 14px -2px #91785c;
+}
+
+.createGame {
+    width: 100%;
+    text-align: center;
+}
+
+.rivalInput {
+	width: 70%;
+	height: 40px;
+	align-self: center;
+	background-color: #f0dfc6;
+	border: solid 2px #c9b18a;
+	border-radius: 3px;
+	transition-duration: 0.2s;
+	margin-bottom: 10px;
+}
+
+.joinButton {
+    width: 200px;
+    height: 50px;
+    align-self: center;
+    font-size: large;
+    background-color: #ddccae;
+    color: grey;
+    border-radius: 30px;
+    border: 2px solid #d8be92;
+    transition-duration: 0.4s;
+  }
+
