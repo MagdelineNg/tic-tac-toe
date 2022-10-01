@@ -25,4 +25,10 @@
 	border-radius: 30px;
 	border: 2px solid #d8be92;
 	transition-duration: 0.4s;
+	cursor: pointer;
+}
+
+.wrapperDiv{
+	height: 500px;
+	overflow-y: scroll;
 }

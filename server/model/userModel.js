@@ -13,9 +13,13 @@ const userSchema = new mongoose.Schema({
         required: true,
         min: 8,
     },
-    // socketId:{
-    //     type: String
-    // }
+    allMatrix:{
+        type: Array
+
+    },
+    result:{
+        type: Array
+    }
 })
 
 module.exports = mongoose.model("Users", userSchema)

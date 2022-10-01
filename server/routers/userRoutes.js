@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login, checkRival, createGameRoom, getPastGames } = require("../controllers/userController");
+const { register, login, checkRival, getPastGames } = require("../controllers/userController");
 const router = express.Router();
 
 router.post("/register", register);

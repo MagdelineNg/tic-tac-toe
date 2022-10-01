@@ -122,7 +122,7 @@ const Login = () => {
         <p className={styles.registerContainer}>
           New User?
           <br />
-          <Link to="/register" className={styles.link}>
+          <Link to="/" className={styles.link}>
             Sign Up
           </Link>
         </p>

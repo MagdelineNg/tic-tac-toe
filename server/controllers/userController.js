@@ -66,7 +66,8 @@ module.exports.getPastGames = async (req, res, mext) => {
   try{
     user = req.params.username
     console.log("user in getpastgames: ", user)
-    const currentUserMatrix = await User.findOne({ user}).select("allMatrix")
+    const currentUserMatrix = await User.findOne({ user}, 'allMatrix result')
+    console.log("GETPASTGAMES currentUserMatrix: ", currentUserMatrix)
     return res.json(currentUserMatrix)
   }catch(e){
     console.log(e.message)

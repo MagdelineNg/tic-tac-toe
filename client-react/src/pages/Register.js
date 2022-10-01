@@ -90,7 +90,7 @@ const Register = () => {
       setUser("");
       setPwd("");
       setMatchPwd("");
-      navigate("/")
+      navigate("/joingame")
 
     } catch (err) {
       if (!err?.response) {

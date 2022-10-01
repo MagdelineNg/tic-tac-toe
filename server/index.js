@@ -15,7 +15,6 @@ app.use(express.json());
 
 app.use("/api/auth", userRoutes);
 
-
 const port = process.env.PORT;
 
 const server = app.listen(port, () => {
@@ -84,22 +83,32 @@ io.on("connection", (socket, client) => {
   });
 
   socket.on("update_game", (newMatrix) => {
-    const roomId =Array.from(socket.rooms.values()).filter(
+    const roomId = Array.from(socket.rooms.values()).filter(
       (r) => r !== socket.id
     );
-    console.log("ROOMID FOR UPDATE_GAME: ", roomId[0])
-    console.log("MATRIX FOR UPDATE_GAME: ", newMatrix)
+    console.log("ROOMID FOR UPDATE_GAME: ", roomId[0]);
+    console.log("MATRIX FOR UPDATE_GAME: ", newMatrix);
     socket.to(roomId[0]).emit("on_game_update", newMatrix);
   });
 
   socket.on("game_win", (message) => {
-    const roomId =Array.from(socket.rooms.values()).filter(
+    const roomId = Array.from(socket.rooms.values()).filter(
       (r) => r !== socket.id
     );
-    // User.updateOne({})
-    socket.to(roomId).emit("on_game_win", message);
-  })
 
+    socket.to(roomId).emit("on_game_win", message);
+  });
+
+  socket.on("save_game", async ({ currentUser, message, matrix }) => {
+    console.log("save game matrix: ", matrix)
+    const user = await User.updateOne(
+      { user: currentUser },
+      {
+        $push: { allMatrix: matrix, result: message },
+      }
+    );
+    console.log("updated user after saving: ", user)
+  })
 });
 
 // socket.on("join-room", (username) => {

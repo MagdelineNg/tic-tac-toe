@@ -18,31 +18,35 @@ const PlayStopper = styled.div`
   cursor: default;
 `;
 
-const Cell = styled.div`
-border-top: ${({ borderTop }) => borderTop && "3px solid #ffaa0028;"};
-border-left: ${({ borderLeft }) => borderLeft && "3px solid #ffaa0028;"};
-border-bottom: ${({ borderBottom }) => borderBottom && "3px solid #ffaa0028;"};
-border-right: ${({ borderRight }) => borderRight && "3px solid #ffaa0028;"};
-transition: all 270ms ease-in-out;
-&:hover {
-  background-color: #ac894228;
-}
-`
-
 const GameContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  align-items: center;
 `;
 
 const RowContainer = styled.div`
   width: 100%;
   display: flex;
+  height: 33%;
+justify-content: center;
+`;
+
+const Cell = styled.div`
+  border-top: ${({ borderTop }) => borderTop && "3px solid #ffaa0028;"};
+  border-left: ${({ borderLeft }) => borderLeft && "3px solid #ffaa0028;"};
+  border-bottom: ${({ borderBottom }) =>
+    borderBottom && "3px solid #ffaa0028;"};
+  border-right: ${({ borderRight }) => borderRight && "3px solid #ffaa0028;"};
+  transition: all 270ms ease-in-out;
+  &:hover {
+    background-color: #ac894228;
+  }
 `;
 
 const X = styled.span`
   font-size: 100px;
-  color: #9b6144;
+  color: grey;
   &::after {
     content: "X";
   }
@@ -50,15 +54,57 @@ const X = styled.span`
 
 const O = styled.span`
   font-size: 100px;
-  color: #9b6144;
+  color: grey;
   &::after {
     content: "O";
   }
 `;
 
+
+
+//past games
+const PastGamesContainer = styled.div`
+  overflowy: scroll;
+  height: 40%;
+`;
+
+const PastRowContainer = styled.span`
+  width: 100%;
+  height: 30%;
+  display: flex;
+`;
+
+const PastCell = styled.div`
+  border-top: ${({ borderTop }) => borderTop && "3px solid #ffaa0028;"};
+  border-left: ${({ borderLeft }) => borderLeft && "3px solid #ffaa0028;"};
+  border-bottom: ${({ borderBottom }) =>
+    borderBottom && "3px solid #ffaa0028;"};
+  border-right: ${({ borderRight }) => borderRight && "3px solid #ffaa0028;"};
+  width: 40px;
+  height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+`;
+
+const PastX = styled.span`
+  font-size: 20px;
+  color: grey;
+`;
+
+const PastO = styled.span`
+  font-size: 30px;
+  color: grey;
+`;
+
+
+
 const Game = () => {
   const navigate = useNavigate();
-  const [showPastGames, setShowPastGames] = useState(false)
+  const [viewPastGames, setViewPastGames] = useState(false);
+  const [pastGames, setPastGames] = useState([]);
+  const [pastResults, setPastResults] = useState([])
 
   const [matrix, setMatrix] = useState([
     ["", "", ""],
@@ -73,7 +119,7 @@ const Game = () => {
     setPlayerTurn,
     playerSymbol,
     setPlayerSymbol,
-    currentUser
+    currentUser,
   } = useContext(GameContext);
 
   const checkGameState = (matrix) => {
@@ -140,13 +186,48 @@ const Game = () => {
     socket.emit("update_game", newMatrix);
     const [currentPlayerWon, otherPlayerWon] = checkGameState(newMatrix);
     if (currentPlayerWon && otherPlayerWon) {
-      socket.emit("game_win",  "The Game is a TIE!");
+      socket.emit("game_win", "The Game is a TIE!");
+      socket.emit("save_game", { currentUser, message: "You tied!", matrix });
       alert("The Game is a TIE!");
     } else if (currentPlayerWon && !otherPlayerWon) {
       socket.emit("game_win", "You lost the game!");
+      socket.emit("save_game", { currentUser, message: "You won!", matrix });
       alert("You Won!");
     }
     setPlayerTurn(false);
+  };
+
+  const handleGameWin = () => {
+    socket.on("on_game_win", (message) => {
+      socket.emit("save_game", { currentUser, message: "You lost!", matrix });
+      setPlayerTurn(false);
+      alert(message);
+    });
+  };
+
+  const viewPastGamesHandler = async () => {
+    console.log("current user in viewPastGamesHandler: ", currentUser);
+    const allGames = await axios.get(`${pastGamesRoute}/${currentUser}`);
+    setViewPastGames(true);
+    setPastResults(allGames.data.result)
+    setPastGames(allGames.data.allMatrix);
+    console.log(
+      "viewPastGamesHandler matrix and result: ",
+      allGames.data.allMatrix,
+      allGames.data.result
+    );
+
+    // let newArr = [];
+    // let newMatrix = [];
+    // //convert matrix in db back to matrix
+    // for (var m = 0; m < allGames.data.allMatrix.length; m++) {
+    //   for (var r = 0; r < 3; r++) {
+    //       newMatrix.push(allGames.data.allMatrix[m][r]);
+    //     }
+    //   newArr.push(newMatrix);
+    //   newMatrix = [];
+    // }
+    // console.log("newArr: ".newArr);
   };
 
   const handleGameStart = () => {
@@ -192,20 +273,6 @@ const Game = () => {
     });
   };
 
-  const handleGameWin = () => {
-    socket.on("on_game_win", (message) => {
-      console.log("here", message);
-      setPlayerTurn(false);
-      alert(message);
-    });
-  };
-
-  const viewPastGames = async () => {
-    console.log("current user in viewpastgames: ", currentUser)
-    const pastGames = await axios.get(`${pastGamesRoute}/${currentUser}`);
-    setShowPastGames(true)
-  };
-
   useEffect(() => {
     handleGameUpdate();
     handleGameStart();
@@ -223,7 +290,8 @@ const Game = () => {
           return (
             <RowContainer>
               {row.map((column, columnIdx) => (
-                <Cell className={styles.cell}
+                <Cell
+                  className={styles.cell}
                   borderRight={columnIdx < 2}
                   borderLeft={columnIdx > 0}
                   borderBottom={rowIdx < 2}
@@ -244,12 +312,51 @@ const Game = () => {
             </RowContainer>
           );
         })}
+        <span className={styles.buttonContainer}>
+          <button
+            className={styles.pastGamesButton}
+            onClick={viewPastGamesHandler}
+          >
+            View past games
+          </button>
+        </span>
+        {setViewPastGames && (
+          <PastGamesContainer>
+            {pastGames.map((game, i) => {
+              return (
+                <div key={i}>
+                  <ul>
+                    {game.map((row, rowIdx) => {
+                      return (
+                        <PastRowContainer>
+                          {row.map((column, columnIdx) => (
+                            <PastCell
+                              className={styles.cell}
+                              borderRight={columnIdx < 2}
+                              borderLeft={columnIdx > 0}
+                              borderBottom={rowIdx < 2}
+                              borderTop={rowIdx > 0}
+                            >
+                              {column && column !== "null" ? (
+                                column === "x" ? (
+                                  <PastX />
+                                ) : (
+                                  <PastO />
+                                )
+                              ) : null}
+                            </PastCell>
+                          ))}
+                        </PastRowContainer>
+                      );
+                    })}
+                    {<div>Game {i}: {pastResults[i]}</div>}
+                  </ul>
+                </div>
+              );
+            })}
+          </PastGamesContainer>
+        )}
       </GameContainer>
-      <span className={styles.buttonContainer}>
-        <button className={styles.pastGamesButton} onClick={viewPastGames}>
-          View past games
-        </button>
-      </span>
     </div>
   );
 };
