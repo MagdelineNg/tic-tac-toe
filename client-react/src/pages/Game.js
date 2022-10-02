@@ -7,10 +7,11 @@ import { useNavigate } from "react-router-dom";
 import styles from "../styles/Game.module.css";
 import { pastGamesRoute } from "../utils/APIRoutes";
 import axios from "axios";
+import NavBar from "../components/NavBar";
 
 const PlayStopper = styled.div`
   width: 100%;
-  height: 100%;
+  height:100%;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -18,18 +19,23 @@ const PlayStopper = styled.div`
   cursor: default;
 `;
 
+const Separator = styled.div`
+  height: 50px;
+  padding: 20px;
+  width: 100%
+}`
+
 const GameContainer = styled.div`
   display: flex;
   flex-direction: column;
-  position: relative;
   align-items: center;
+  margin; 30px;
 `;
 
 const RowContainer = styled.div`
   width: 100%;
   display: flex;
-  height: 33%;
-justify-content: center;
+  justify-content: center;
 `;
 
 const Cell = styled.div`
@@ -60,8 +66,6 @@ const O = styled.span`
   }
 `;
 
-
-
 //past games
 const PastGamesContainer = styled.div`
   overflowy: scroll;
@@ -80,8 +84,8 @@ const PastCell = styled.div`
   border-bottom: ${({ borderBottom }) =>
     borderBottom && "3px solid #ffaa0028;"};
   border-right: ${({ borderRight }) => borderRight && "3px solid #ffaa0028;"};
-  width: 40px;
-  height: 2em;
+  width: 50px;
+  height: 3em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,22 +93,26 @@ const PastCell = styled.div`
 `;
 
 const PastX = styled.span`
-  font-size: 20px;
+  font-size: 50px;
   color: grey;
+  &::after {
+    content: "X";
+  }
 `;
 
 const PastO = styled.span`
-  font-size: 30px;
+  font-size: 50px;
   color: grey;
+  &::after {
+    content: "O";
+  }
 `;
-
-
 
 const Game = () => {
   const navigate = useNavigate();
   const [viewPastGames, setViewPastGames] = useState(false);
   const [pastGames, setPastGames] = useState([]);
-  const [pastResults, setPastResults] = useState([])
+  const [pastResults, setPastResults] = useState([]);
 
   const [matrix, setMatrix] = useState([
     ["", "", ""],
@@ -205,45 +213,11 @@ const Game = () => {
     });
   };
 
-  const viewPastGamesHandler = async () => {
-    console.log("current user in viewPastGamesHandler: ", currentUser);
-    const allGames = await axios.get(`${pastGamesRoute}/${currentUser}`);
-    setViewPastGames(true);
-    setPastResults(allGames.data.result)
-    setPastGames(allGames.data.allMatrix);
-    console.log(
-      "viewPastGamesHandler matrix and result: ",
-      allGames.data.allMatrix,
-      allGames.data.result
-    );
-
-    // let newArr = [];
-    // let newMatrix = [];
-    // //convert matrix in db back to matrix
-    // for (var m = 0; m < allGames.data.allMatrix.length; m++) {
-    //   for (var r = 0; r < 3; r++) {
-    //       newMatrix.push(allGames.data.allMatrix[m][r]);
-    //     }
-    //   newArr.push(newMatrix);
-    //   newMatrix = [];
-    // }
-    // console.log("newArr: ".newArr);
-  };
-
   const handleGameStart = () => {
     //second player does not catch socket
     if (playerSymbol === "x") {
       setPlayerTurn(true);
     }
-    console.log("BEFORE isPLayerTurn: ", isPlayerTurn);
-    console.log("isGameStarted: ", isGameStarted);
-    console.log("symbol:", playerSymbol);
-    console.log("isPlayerturn: ", isPlayerTurn);
-    //first player
-    // if (playerSymbol==="o"){
-    //   setPlayerTurn(true);
-    //   console.log("AFTER IF isPlayerTurn: ", isPlayerTurn);
-    // }
 
     //only first player enters
     socket.on("start_game", ({ symbol, start }) => {
@@ -279,12 +253,41 @@ const Game = () => {
     handleGameWin();
   }, []);
 
+  const viewPastGamesHandler = async () => {
+    console.log("current user in viewPastGamesHandler: ", currentUser);
+    const token = localStorage.getItem("auth_token")
+    const allGames = await axios.post(`${pastGamesRoute}/${currentUser}`, {token});
+    setViewPastGames(true);
+    setPastResults(allGames.data.result);
+    setPastGames(allGames.data.allMatrix);
+    console.log(
+      "viewPastGamesHandler matrix and result: ",
+      allGames.data.allMatrix,
+      allGames.data.result
+    );
+
+    // let newArr = [];
+    // let newMatrix = [];
+    // //convert matrix in db back to matrix
+    // for (var m = 0; m < allGames.data.allMatrix.length; m++) {
+    //   for (var r = 0; r < 3; r++) {
+    //       newMatrix.push(allGames.data.allMatrix[m][r]);
+    //     }
+    //   newArr.push(newMatrix);
+    //   newMatrix = [];
+    // }
+    // console.log("newArr: ".newArr);
+  };
+
   return (
     <div>
+      <NavBar/>
+      <Separator/>
       <GameContainer>
         {!isGameStarted && (
           <h2>Waiting for Other Player to Join to Start the Game!</h2>
         )}
+              <Separator/>
         {(!isGameStarted || !isPlayerTurn) && <PlayStopper />}
         {matrix.map((row, rowIdx) => {
           return (
@@ -300,7 +303,7 @@ const Game = () => {
                     updateGameMatrix(columnIdx, rowIdx, playerSymbol)
                   }
                 >
-                  {column && column !== "null" ? (
+                  {column && column !== "" ? (
                     column === "x" ? (
                       <X />
                     ) : (
@@ -331,13 +334,13 @@ const Game = () => {
                         <PastRowContainer>
                           {row.map((column, columnIdx) => (
                             <PastCell
-                              className={styles.cell}
+                              className={styles.pastcell}
                               borderRight={columnIdx < 2}
                               borderLeft={columnIdx > 0}
                               borderBottom={rowIdx < 2}
                               borderTop={rowIdx > 0}
                             >
-                              {column && column !== "null" ? (
+                              {column && column !== "" ? (
                                 column === "x" ? (
                                   <PastX />
                                 ) : (
@@ -349,7 +352,11 @@ const Game = () => {
                         </PastRowContainer>
                       );
                     })}
-                    {<div>Game {i}: {pastResults[i]}</div>}
+                    {
+                      <div>
+                        Game {i}: {pastResults[i]}
+                      </div>
+                    }
                   </ul>
                 </div>
               );

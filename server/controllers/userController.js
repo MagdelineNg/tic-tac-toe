@@ -1,32 +1,35 @@
 const bcrypt = require("bcrypt");
 const User = require("../model/userModel");
 
-module.exports.register = async (req, res, next) => {
+module.exports.register = async (req, res) => {
   try {
-    const { user, password, socketId } = req.body;
+    const { user, password } = req.body;
 
     const usernameCheck = await User.findOne({ user });
     if (usernameCheck) {
       return res.json({ msg: "Username is taken", status: false });
     }
+
     const hashedPassword = await bcrypt.hash(password, 8);
+
     const newUser = await User.create({
       user,
       password: hashedPassword,
-      socketId,
     });
-    return res.json({ status: true, newUser });
+
+    const token = await newUser.generateAuthToken()
+    res.cookie('auth_token', token)
+    console.log("register controller: ",  res.cookie, res.cookie['auth_token'])
+    return res.json({ status: true, newUser, token });
+
   } catch (e) {
-    console.log("register controller");
-    console.log(e);
-    next(e);
+    res.status(400).send(e)
   }
 };
 
-module.exports.login = async (req, res, next) => {
+module.exports.login = async (req, res) => {
   try {
     const { user, password } = req.body;
-    console.log("login controller", req.body)
     const existingUser = await User.findOne({ user });
 
     if (!existingUser){
@@ -38,17 +41,35 @@ module.exports.login = async (req, res, next) => {
         return res.json({ msg: "Incorrect username or password", status: false });
     }
 
-    //create map of user: socket to get socketid later on for room creation
+    const token = await existingUser.generateAuthToken()
+    // res.cookie('auth_token', token)
 
-    return res.json({ status: true, existingUser });
+    // console.log("login token: ", localStorage.getItem('auth_token'))
+
+    // console.log("login COOKIE: ", res.cookie, res.cookie['auth_token'])
+    return res.json({ status: true, existingUser, token });
   } catch (e) {
-    console.log("login controller");
-    console.log(e);
-    next(e);
+    res.status(400).send()
   }
+
 };
 
-module.exports.checkRival = async (req, res, next) => {
+module.exports.logout = async (req, res) => {
+  console.log("lougout req: ", req.token)
+  console.log("logout user: ", req.user.tokens)
+  try{
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token   
+    })
+    await req.user.save()
+    return res.json({status: true})
+  }catch(e){
+    console.log("ERROR IN LOGOUT: ", e.message)
+    res.status(500).send()
+  }
+}
+
+module.exports.checkRival = async (req, res) => {
     try{
         user = req.params.username
         const isExist = await User.findOne({ user })  //findOne returns null, find doenst
@@ -57,12 +78,11 @@ module.exports.checkRival = async (req, res, next) => {
         }
         return res.json( {status: true})
     }catch(e){
-        console.log("get rival e: ", e)
-        next(e)
+      console.log(e.message)
     }
 }
 
-module.exports.getPastGames = async (req, res, mext) => {
+module.exports.getPastGames = async (req, res) => {
   try{
     user = req.params.username
     console.log("user in getpastgames: ", user)
@@ -74,14 +94,3 @@ module.exports.getPastGames = async (req, res, mext) => {
   }
 }
 
-// module.exports.createGameRoom = async(req, res, next)=> {
-//     const {roomId, currentUser} = req.body
-//     try{
-//         console.log("CURRENT USER PASSED SUC:", currentUser)
-//         let doc = await User.findOneAndUpdate({user: currentUser.user}, {socketId: roomId}, {new: true})
-//         console.log(doc)
-//     }catch(e){
-//         console.log('saving game room id failed: ', e)
-//         next(e)
-//     }
-// }

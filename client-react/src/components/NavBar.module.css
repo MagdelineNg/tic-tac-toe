@@ -1,0 +1,26 @@
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5rem;
+  background-color: #d79b83;
+  color: #d79b83;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.logoutButton {
+  width: 200px;
+  height: 50px;
+  align-self: center;
+  font-size: large;
+  background-color: #ddccae;
+  color: grey;
+  border-radius: 30px;
+  border: 2px solid #d8be92;
+  transition-duration: 0.4s;
+  margin-right: 20px;
+}

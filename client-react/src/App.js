@@ -7,14 +7,15 @@ import Register from "./pages/Register";
 import JoinGame from "./pages/JoinGame";
 import Game from "./pages/Game";
 import socket from "./socket/socket";
+import NavBar from "./components/NavBar";
 
 function App() {
   const [isGameStarted, setGameStarted] = useState(false);
   const [isPlayerTurn, setPlayerTurn] = useState(false);
   const [playerSymbol, setPlayerSymbol] = useState("x");
-  const [currentUser, setCurrentUser] = useState("")
-  const [isInRoom, setisInRoom] = useState(false)
-  const roomId = null
+  const [currentUser, setCurrentUser] = useState("");
+  const [isInRoom, setisInRoom] = useState(false);
+  const roomId = null;
 
   //store sessionID in localStorage
   socket.on("session", ({ sessionID, userID }) => {

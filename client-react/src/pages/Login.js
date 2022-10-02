@@ -51,6 +51,8 @@ const Login = () => {
         setErrMsg(response.data.msg);
         errRef.current.focus();
       } else{
+        localStorage.setItem('auth_token', response.data.token)
+        // console.log("login token: ", localStorage.getItem('auth_token'))
         setCurrentUser(user)
         navigate("/joingame");
       }
@@ -69,6 +71,7 @@ const Login = () => {
       if (!err?.response) {
         setErrMsg("No Server Response");
       } else if (err.response?.status === 400) {
+        console.log(err)
         setErrMsg("Missing Username or Password");
       } else if (err.response?.status === 401) {
         setErrMsg("Unauthorized");

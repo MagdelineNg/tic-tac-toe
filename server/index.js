@@ -5,6 +5,7 @@ const cors = require("cors");
 const socket = require("socket.io");
 const userRoutes = require("./routers/userRoutes");
 const User = require("./model/userModel");
+const cookieParser = require('cookie-parser')
 
 const app = express();
 require("./db/mongoose");
@@ -12,6 +13,8 @@ require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
 
 app.use("/api/auth", userRoutes);
 
@@ -23,7 +26,7 @@ const server = app.listen(port, () => {
 
 const io = socket(server, {
   cors: {
-    origin: "http://localhost:3000", //whr client lives
+    origin: "http://localhost:3001", //whr client lives
     credentials: true,
   },
 });
@@ -110,13 +113,3 @@ io.on("connection", (socket, client) => {
     console.log("updated user after saving: ", user)
   })
 });
-
-// socket.on("join-room", (username) => {
-//   console.log(username)
-// })
-
-// client.emit("join-room", (username))
-
-// socket.on("add-user", (userId) => {
-//   onlineUsers.set(userId, socket.id);
-// });

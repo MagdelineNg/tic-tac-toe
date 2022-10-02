@@ -6,6 +6,7 @@ import { host, allUsersRoute, gameRoomRoute } from "../utils/APIRoutes";
 import styles from "../styles/JoinGame.module.css";
 import socket from "../socket/socket";
 import { GameContext } from "../GameContext";
+import NavBar from "../components/NavBar";
 
 const JoinGame = () => {
   const { currentUser, isInRoom, setisInRoom, isGameStarted, setGameStarted } =
@@ -16,10 +17,14 @@ const JoinGame = () => {
 
   //const [enterGameRoom, setEnterGameRoom] = useState(false)
   const [rivalUsername, setRivalUsername] = useState("");
-  const [errMsg, setErrMsg] = useState("")
+  const [errMsg, setErrMsg] = useState("");
   const [isJoining, setIsJoining] = useState(false);
+  const gameId = useRef();
   //const [socketId, setSocketId] = useState("")
-  
+
+  useEffect(() => {
+    gameId.current.focus();
+  }, []);
 
   const connect = () => {
     socket.on("connect", () => {
@@ -38,7 +43,9 @@ const JoinGame = () => {
 
     console.log("rival: ", rivalUsername);
     try {
-      const response = await axios.get(`${allUsersRoute}/${rivalUsername}`);
+      const token = localStorage.getItem("auth_token");
+      console.log('JOIN GAME: ', {token})
+      const response = await axios.post(`${allUsersRoute}/${rivalUsername}`, {token})
 
       console.log(response.data);
       console.log("current User if type own name: ", currentUser);
@@ -55,10 +62,13 @@ const JoinGame = () => {
 
         socket.on("room_joined", ({ isStartGame, roomId }) => {
           // setisInRoom(true);
-          console.log("isSTartGame value passed by room_joined: ", isStartGame)
+          console.log("isSTartGame value passed by room_joined: ", isStartGame);
           setGameStarted(isStartGame);
-          console.log("is game started changed by room_joined? ", isGameStarted)
-          navigate('/game')
+          console.log(
+            "is game started changed by room_joined? ",
+            isGameStarted
+          );
+          navigate("/game");
         });
 
         socket.on("room_join_error", ({ error }) => {
@@ -74,6 +84,7 @@ const JoinGame = () => {
 
   return (
     <div className="mainContainer">
+      <NavBar/>
       <div className={styles.joinGameContainer}>
         <h2 className={styles.createGame}> Create Game </h2>
         <p
@@ -84,6 +95,7 @@ const JoinGame = () => {
           {errMsg}
         </p>
         <input
+          ref={gameId}
           className={styles.rivalInput}
           placeholder="Username of rival..."
           value={rivalUsername}
@@ -102,20 +114,3 @@ const JoinGame = () => {
 };
 
 export default JoinGame;
-
-//  FROM CHAT APP
-// useEffect(async () => {
-//   if (!localStorage.getItem("new-user-local")) {
-//     navigate("/login");
-//   } else {
-//     setCurrentUser(await JSON.parse(localStorage.getItem("new-user-local")));
-//   }
-// }, []);
-
-// useEffect(() => {
-//   if (currentUser) {
-//     socket.current = io(host);
-//     console.log(currentUser + "connected")
-//     socket.current.emit("add-user", currentUser._id);
-//   }
-// }, [currentUser]);
