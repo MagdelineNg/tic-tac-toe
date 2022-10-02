@@ -35,8 +35,6 @@ const Register = () => {
   }, []);
 
   useEffect(() => {
-    console.log("regex test", USER_REGEX.test(user));
-
     setValidName(USER_REGEX.test(user));
   }, [user]);
 
@@ -59,15 +57,12 @@ const Register = () => {
       return;
     }
 
-    //axios returns obj with .data property
-    //obj destructuring
     try {
       const response = await axios.post(
         registerRoute,
         {
           user,
           password: pwd,
-          //socketId: null,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -80,11 +75,6 @@ const Register = () => {
         return
       }
       setCurrentUser(user)
-      console.log(response.data);
-
-
-      // localStorage.setItem("current-user", JSON.stringify(response.data.newUser));
-      // console.log(localStorage.getItem("current-user"))
 
       //clear state and controlled inputs
       setUser("");
@@ -101,37 +91,6 @@ const Register = () => {
       errRef.current.focus();
     }
   }
-
-//     if (response.data.status === false) {
-//       setErrMsg(response.data.msg);
-//       errRef.current.focus();
-//     }
-
-//     console.log("user reg validated");
-
-//     if (response.data.status === true) {
-//       //localStorage.setItem("new-user-local", JSON.stringify(data.user));
-//       navigate("/");
-//     }
-//   };
-
-  //       console.log("response", data)
-  //       //console.log(response.status)
-  //       //console.log(JSON.stringify(response?.data));
-  //       //console.log(JSON.stringify(response))
-
-  //     } catch (err) {
-  //       if (!err?.response) {
-  //         setErrMsg("No Server Response");
-  //       } else if (err.response?.status === 409) {
-  //         setErrMsg("Username Taken");
-  //       } else {
-  //         console.log(err);
-  //         setErrMsg("Registration Failed");
-  //       }
-  //       errRef.current.focus();
-  //     }
-  //   };
 
   return (
     <div className="mainContainer">

@@ -55,8 +55,6 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.logout = async (req, res) => {
-  console.log("lougout req: ", req.token)
-  console.log("logout user: ", req.user.tokens)
   try{
     req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token   
@@ -64,7 +62,6 @@ module.exports.logout = async (req, res) => {
     await req.user.save()
     return res.json({status: true})
   }catch(e){
-    console.log("ERROR IN LOGOUT: ", e.message)
     res.status(500).send()
   }
 }
@@ -81,9 +78,7 @@ module.exports.checkRival = async (req, res) => {
 module.exports.getPastGames = async (req, res) => {
   try{
     user = req.params.username
-    console.log("user in getpastgames: ", user)
     const currentUserMatrix = await User.findOne({ user}, 'allMatrix result')
-    console.log("GETPASTGAMES currentUserMatrix: ", currentUserMatrix)
     return res.json(currentUserMatrix)
   }catch(e){
     console.log(e.message)

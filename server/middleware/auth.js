@@ -2,24 +2,18 @@ const jwt = require('jsonwebtoken')
 const User = require('../model/userModel')
 
 const auth = async (req, res, next) => {
-    console.log("auth req: ", req.body.token)
-    // console.log("replace tokemn: ",  )
     try{
         //validate token
         const token = req.body.token.replace('Bearer ', '')
 
-        const decoded = jwt.verify(token, "ilovereact"
+        const decoded = jwt.verify(token, process.env.JWT_SECRET
         , (err, user) => {
             if (err){
-                // console.log("decoded E3RROR: ", err)
                 return err.message
             } else{
-                console.log("USER IN AUTH:", user)
                 return user
             }
         })
-        console.log("DECODED: ", decoded)
-        console.log("AUTH USER ID: ", decoded._id)
         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
 
         if (!user){
@@ -28,10 +22,8 @@ const auth = async (req, res, next) => {
 
         req.token = token
         req.user =  user
-        console.log("AUTH MIDDLEWARE REQ: ", req.token, req.user)
         next() 
     }catch(e){
-        console.log("auth failed: ", e.message)
         res.status(401).send({error: 'Please authenticate'})
     }
 }

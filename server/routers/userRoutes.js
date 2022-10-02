@@ -8,6 +8,5 @@ router.post("/login", login);
 router.post("/logout", auth, logout)
 router.post("/allusers/:username", checkRival)
 router.post("/pastgames/:username", getPastGames)
-// router.get("/gameroom", createGameRoom)
 
 module.exports = router;

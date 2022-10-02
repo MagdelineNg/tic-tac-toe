@@ -1,5 +1,3 @@
-// import { useContext } from "react";
-// import { GameContext } from "../client/src/GameContext";
 const express = require("express");
 const cors = require("cors");
 const socket = require("socket.io");
@@ -26,11 +24,10 @@ const server = app.listen(port, () => {
 
 const io = socket(server, {
   cors: {
-    origin: "http://localhost:3001", //whr client lives
+    origin: process.eventNames.PORT, //whr client lives
     credentials: true,
   },
 });
-//const { setGameStarted, isGameStarted } = useContext(GameContext);
 
 io.on("connection", (socket, client) => {
   console.log("New socket connected: " + socket.id);
@@ -40,9 +37,8 @@ io.on("connection", (socket, client) => {
   });
 
   socket.on("join_game", async (rivalUsername, currentUser) => {
-    console.log("JOIN_GAME PARAMS: ", rivalUsername, currentUser);
     const connectedSockets = io.sockets.adapter.rooms.get(rivalUsername);
-    console.log("number of connected socket to rival room: ", connectedSockets);
+
 
     const socketRooms = Array.from(socket.rooms.values()).filter(
       (r) => r !== socket.id
@@ -58,7 +54,6 @@ io.on("connection", (socket, client) => {
     } else {
       //first player waiting in room
       if (connectedSockets && connectedSockets.size === 1) {
-        console.log("joining rival's room called: ", rivalUsername);
         await socket.join(rivalUsername);
 
         socket.emit("room_joined", {
@@ -67,10 +62,8 @@ io.on("connection", (socket, client) => {
         });
 
         if (io.sockets.adapter.rooms.get(rivalUsername).size === 2) {
-          console.log("both players in!!!");
           //send to second player
           socket.emit("start_game", { start: true, symbol: "x" });
-          console.log("rivalUsername start second: ", rivalUsername);
           //send to first player
           socket
             .to(rivalUsername)
@@ -79,7 +72,6 @@ io.on("connection", (socket, client) => {
       } else {
         //you are first player
         socket.emit("room_joined", { isStartGame: false, roomId: currentUser });
-        console.log("joining own room called: ", currentUser);
         socket.join(currentUser);
       }
     }
@@ -89,8 +81,6 @@ io.on("connection", (socket, client) => {
     const roomId = Array.from(socket.rooms.values()).filter(
       (r) => r !== socket.id
     );
-    console.log("ROOMID FOR UPDATE_GAME: ", roomId[0]);
-    console.log("MATRIX FOR UPDATE_GAME: ", newMatrix);
     socket.to(roomId[0]).emit("on_game_update", newMatrix);
   });
 
@@ -103,14 +93,11 @@ io.on("connection", (socket, client) => {
   });
 
   socket.on("save_game", async ({ currentUser, message, matrix }) => {
-    console.log("save game matrix: ", matrix)
-    console.log("save game message: ", message)
     const user = await User.updateOne(
       { user: currentUser },
       {
         $push: { allMatrix: matrix, result: message },
       }
     );
-    console.log("updated user from save_game: ", user)
   })
 });

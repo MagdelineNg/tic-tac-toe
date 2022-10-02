@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "../styles/Login.module.css";
 import { loginRoute } from "../utils/APIRoutes";
@@ -52,20 +52,9 @@ const Login = () => {
         errRef.current.focus();
       } else{
         localStorage.setItem('auth_token', response.data.token)
-        // console.log("login token: ", localStorage.getItem('auth_token'))
         setCurrentUser(user)
         navigate("/joingame");
       }
-
-      // if (response.data.status === true) {
-      //   localStorage.setItem(
-      //     "current-user",
-      //     JSON.stringify(response.data.existingUser)
-      //   );
-
-     // }
-
-      //clear state and controlled inputs
     } catch (err) {
         console.log(err.message)
       if (!err?.response) {
@@ -122,7 +111,7 @@ const Login = () => {
             Login
           </button>
         </div>
-        <p className={styles.registerContainer}>
+        <p role="status" className={styles.registerContainer}>
           New User?
           <br />
           <Link to="/" className={styles.link}>

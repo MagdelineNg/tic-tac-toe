@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import styled from "styled-components";
 import socket from "../socket/socket";
 import { GameContext } from "../GameContext";
@@ -9,16 +8,7 @@ import { pastGamesRoute } from "../utils/APIRoutes";
 import axios from "axios";
 import NavBar from "../components/NavBar";
 
-const PlayStopper = styled.div`
-  width: 100%;
-  height:100%;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  z-index: 99;
-  cursor: default;
-`;
-
+//todo: move css to another file
 const Separator = styled.div`
   height: 50px;
   padding: 20px;
@@ -66,7 +56,6 @@ const O = styled.span`
   }
 `;
 
-//past games
 const PastGamesContainer = styled.div`
   overflowy: scroll;
   height: 40%;
@@ -109,11 +98,10 @@ const PastO = styled.span`
 `;
 
 const Game = () => {
-  const navigate = useNavigate();
-  const [viewPastGames, setViewPastGames] = useState(false);
   const [pastGames, setPastGames] = useState([]);
   const [pastResults, setPastResults] = useState([]);
   const [noPastGames, setNoPastGames] = useState(false)
+  const [viewPastGames, setViewPastGames] = useState(false)
 
   const [matrix, setMatrix] = useState([
     ["", "", ""],
@@ -178,12 +166,7 @@ const Game = () => {
     return [false, false];
   };
 
-  // useEffect(() => {
-  //   checkGameState(matrix)
-  // }, [matrix])
-
   const updateGameMatrix = (column, row, symbol) => {
-    console.log("symbol: ", symbol);
     const newMatrix = [...matrix];
 
     if (newMatrix[row][column] === "" || newMatrix[row][column] === null) {
@@ -191,28 +174,27 @@ const Game = () => {
       setMatrix(newMatrix);
     }
 
-    console.log("matrix outside update_game: ", newMatrix);
     socket.emit("update_game", newMatrix);
     const [currentPlayerWon, otherPlayerWon] = checkGameState(newMatrix);
 
-    if (currentPlayerWon && otherPlayerWon) {ß
+    if (currentPlayerWon && otherPlayerWon) {
       const rival = localStorage.getItem("rivalUsername")
-      console.log("rival IN LOCAL: ", rival)
       const message = `You tied with ${rival}`
       const rivalMessage = `You tied with ${currentUser}`
       socket.emit("game_win", rivalMessage);
       socket.emit("save_game", { currentUser, message, matrix });
+      setNoPastGames(false)
       alert(message);
 
     } else if (currentPlayerWon && !otherPlayerWon) {
-      const message = `You lost to ${currentUser}`
-      socket.emit("game_win", message);
-
+      const otherMessage = `You lost to ${currentUser}`
+      socket.emit("game_win", otherMessage);
+      setNoPastGames(false)
       const rival = localStorage.getItem("rivalUsername")
 
-      const alertMessage = `You won against ${rival}`
-      socket.emit("save_game", { currentUser, alertMessage, matrix });
-      alert(alertMessage);
+      const message = `You won against ${rival}`
+      socket.emit("save_game", { currentUser, message , matrix });
+      alert(message);
     }
     setPlayerTurn(false);
   };
@@ -226,36 +208,26 @@ const Game = () => {
   };
 
   const handleGameStart = () => {
-    //second player does not catch socket
     if (playerSymbol === "x") {
       setPlayerTurn(true);
     }
 
-    //only first player enters
     socket.on("start_game", ({ symbol, start }) => {
-      console.log("symbol and start passed: ", symbol, start);
       setGameStarted(true);
-      console.log("value of isGameStarted in handlegamestart: ", isGameStarted);
       setPlayerSymbol(symbol);
-      console.log("value of playerSYmbol in handlegamestart: ", playerSymbol);
       if (start) {
         setPlayerTurn(true);
       } else {
         setPlayerTurn(false);
       }
-      console.log("AFTER SOCKET isPlayerTurn: ", isPlayerTurn);
     });
   };
 
   const handleGameUpdate = () => {
-    console.log("in handleGameUpdate");
     socket.on("on_game_update", (newMatrix) => {
-      console.log("receive game update !! ", newMatrix);
       setMatrix(newMatrix);
       checkGameState(newMatrix);
       setPlayerTurn(true);
-      console.log(isPlayerTurn);
-      console.log(isGameStarted);
     });
   };
 
@@ -266,37 +238,16 @@ const Game = () => {
   }, []);
 
   const viewPastGamesHandler = async () => {
-    console.log("current user in viewPastGamesHandler: ", currentUser);
     const token = localStorage.getItem("auth_token")
     const allGames = await axios.post(`${pastGamesRoute}/${currentUser}`, {token});
-    setViewPastGames(true);
-    console.log("ALL MATRIX: ", allGames.data.allMatrix.length)
     if (allGames.data.allMatrix.length===0){
-      console.log("nO PAST GHAMES")
       setNoPastGames(true)
     } else{
-      console.log("REUSLF OF PAST GAMES: ",allGames.data.resullt)
+      setNoPastGames(false)
       setPastResults(allGames.data.result);
       setPastGames(allGames.data.allMatrix);
     }
-
-    console.log(
-      "viewPastGamesHandler matrix and result: ",
-      allGames.data.allMatrix,
-      allGames.data.result
-    );
-
-    // let newArr = [];
-    // let newMatrix = [];
-    // //convert matrix in db back to matrix
-    // for (var m = 0; m < allGames.data.allMatrix.length; m++) {
-    //   for (var r = 0; r < 3; r++) {
-    //       newMatrix.push(allGames.data.allMatrix[m][r]);
-    //     }
-    //   newArr.push(newMatrix);
-    //   newMatrix = [];
-    // }
-    // console.log("newArr: ".newArr);
+    setViewPastGames(true)
   };
 
   return (
@@ -310,7 +261,6 @@ const Game = () => {
           <h2>Waiting for Other Player to Join to Start the Game!</h2>
         )}
               <Separator/>
-        {/* {(!isGameStarted || !isPlayerTurn) && <PlayStopper />} */}
         {matrix.map((row, rowIdx) => {
           return (
             <RowContainer style={(isPlayerTurn && isGameStarted) ? {pointerEvents: 'auto'} : {pointerEvents: 'none'}}>
