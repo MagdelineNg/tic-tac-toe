@@ -83,7 +83,7 @@ const Login = () => {
           {errMsg}
         </p>
         <div className={styles.inputContainer}>
-          <h1>Login</h1>
+          <h1 tabIndex="0">Login</h1>
           <label htmlFor="username">Username:</label>
           <input
             className={styles.loginInput}
@@ -111,7 +111,7 @@ const Login = () => {
             Login
           </button>
         </div>
-        <p role="status" className={styles.registerContainer}>
+        <p className={styles.registerContainer}>
           New User?
           <br />
           <Link to="/" className={styles.link}>

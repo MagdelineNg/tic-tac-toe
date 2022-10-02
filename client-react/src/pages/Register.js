@@ -105,7 +105,7 @@ const Register = () => {
         </p>
 
         <div className={styles.inputContainer}>
-          <h1>Register</h1>
+          <h1 tabIndex="0">Register</h1>
 
           <label htmlFor="username">
             Username:{" "}
@@ -223,7 +223,7 @@ const Register = () => {
             Register
           </button>
         </div>
-        <p role="status" className={styles.registerContainer}>
+        <p className={styles.registerContainer}>
           Already have an account?
           <br />
           <Link to="/login" className={styles.link}>

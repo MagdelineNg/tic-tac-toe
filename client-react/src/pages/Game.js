@@ -13,7 +13,7 @@ const Separator = styled.div`
   height: 50px;
   padding: 20px;
   width: 100%
-}`
+}`;
 
 const GameContainer = styled.div`
   display: flex;
@@ -100,8 +100,8 @@ const PastO = styled.span`
 const Game = () => {
   const [pastGames, setPastGames] = useState([]);
   const [pastResults, setPastResults] = useState([]);
-  const [noPastGames, setNoPastGames] = useState(false)
-  const [viewPastGames, setViewPastGames] = useState(false)
+  const [noPastGames, setNoPastGames] = useState(false);
+  const [viewPastGames, setViewPastGames] = useState(false);
 
   const [matrix, setMatrix] = useState([
     ["", "", ""],
@@ -178,22 +178,21 @@ const Game = () => {
     const [currentPlayerWon, otherPlayerWon] = checkGameState(newMatrix);
 
     if (currentPlayerWon && otherPlayerWon) {
-      const rival = localStorage.getItem("rivalUsername")
-      const message = `You tied with ${rival}`
-      const rivalMessage = `You tied with ${currentUser}`
+      const rival = localStorage.getItem("rivalUsername");
+      const message = `You tied with ${rival}`;
+      const rivalMessage = `You tied with ${currentUser}`;
       socket.emit("game_win", rivalMessage);
       socket.emit("save_game", { currentUser, message, matrix });
-      setNoPastGames(false)
+      setNoPastGames(false);
       alert(message);
-
     } else if (currentPlayerWon && !otherPlayerWon) {
-      const otherMessage = `You lost to ${currentUser}`
+      const otherMessage = `You lost to ${currentUser}`;
       socket.emit("game_win", otherMessage);
-      setNoPastGames(false)
-      const rival = localStorage.getItem("rivalUsername")
+      setNoPastGames(false);
+      const rival = localStorage.getItem("rivalUsername");
 
-      const message = `You won against ${rival}`
-      socket.emit("save_game", { currentUser, message , matrix });
+      const message = `You won against ${rival}`;
+      socket.emit("save_game", { currentUser, message, matrix });
       alert(message);
     }
     setPlayerTurn(false);
@@ -238,32 +237,48 @@ const Game = () => {
   }, []);
 
   const viewPastGamesHandler = async () => {
-    const token = localStorage.getItem("auth_token")
-    const allGames = await axios.post(`${pastGamesRoute}/${currentUser}`, {token});
-    if (allGames.data.allMatrix.length===0){
-      setNoPastGames(true)
-    } else{
-      setNoPastGames(false)
+    const token = localStorage.getItem("auth_token");
+    const allGames = await axios.post(`${pastGamesRoute}/${currentUser}`, {
+      token,
+    });
+    if (allGames.data.allMatrix.length === 0) {
+      setNoPastGames(true);
+    } else {
+      setNoPastGames(false);
       setPastResults(allGames.data.result);
       setPastGames(allGames.data.allMatrix);
     }
-    setViewPastGames(true)
+    setViewPastGames(true);
   };
 
   return (
     <React.Fragment>
-      <nav>
-      <NavBar aria-label="logout"/>
-      </nav>
-      <Separator/>
+      <NavBar title="  Join Game" aria-label="logout" />
+      <Separator />
       <GameContainer>
         {!isGameStarted && (
           <h2>Waiting for Other Player to Join to Start the Game!</h2>
         )}
-              <Separator/>
+        {isGameStarted && (
+          <h2 aria-live="Both players have joined.Let's play!">
+            Both players have joined. Let's play!
+          </h2>
+        )}
+        <Separator />
         {matrix.map((row, rowIdx) => {
           return (
-            <RowContainer style={(isPlayerTurn && isGameStarted) ? {pointerEvents: 'auto'} : {pointerEvents: 'none'}}>
+            <RowContainer
+              aria-live={
+                isGameStarted
+                  ? "Click on the board to make your move"
+                  : "Board is not clickable until both players have joined"
+              }
+              style={
+                isPlayerTurn && isGameStarted
+                  ? { pointerEvents: "auto" }
+                  : { pointerEvents: "none" }
+              }
+            >
               {row.map((column, columnIdx) => (
                 <Cell
                   className={styles.cell}
@@ -295,7 +310,9 @@ const Game = () => {
             View past games
           </button>
         </span>
-        {noPastGames && <h2 className={styles.pastGamesHeader}>You have no past games!</h2>}
+        {noPastGames && (
+          <h2 className={styles.pastGamesHeader}>You have no past games!</h2>
+        )}
         {setViewPastGames && (
           <PastGamesContainer>
             {pastGames.map((game, i) => {
@@ -328,7 +345,7 @@ const Game = () => {
                     {
                       <React.Fragment>
                         Game {i}: {pastResults[i]}
-                      </React.Fragment >
+                      </React.Fragment>
                     }
                   </ul>
                 </div>

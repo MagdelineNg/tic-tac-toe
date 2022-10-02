@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { logoutRoute } from "../utils/APIRoutes";
 import styles from "./NavBar.module.css";
 
-const NavBar = () => {
+const NavBar = ({title}) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -25,7 +25,7 @@ const NavBar = () => {
 
   return (
     <header className={styles.header}>
-      <h1> Tic Tac Toe</h1>
+      <h1 className={styles.title}> {title} </h1>
       <button
         aria-label="logout"
         tabindex="0"

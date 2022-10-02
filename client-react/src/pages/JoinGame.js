@@ -69,9 +69,7 @@ const JoinGame = () => {
 
   return (
     <main className="mainContainer">
-      <nav>
-      <NavBar aria-label="logout"/>
-      </nav>
+      <NavBar title="  Join Game" aria-label="logout"/>
       <section className={styles.joinGameContainer}>
         <h1 className={styles.createGame}> Create Game </h1>
         <p
@@ -83,6 +81,8 @@ const JoinGame = () => {
         </p>
         <input
           ref={gameId}
+          type="text"
+          aria-label="Enter username of opponent."
           className={styles.rivalInput}
           placeholder="Username of rival..."
           value={rivalUsername}
