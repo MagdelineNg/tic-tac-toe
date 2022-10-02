@@ -8,6 +8,10 @@
   cursor: pointer;
 } 
 
+.pastGamesHeader {
+	justify-content: center;
+}
+
 .pastcell{
 	display: flex;
 	align-items: center;

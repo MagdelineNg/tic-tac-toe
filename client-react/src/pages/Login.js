@@ -85,7 +85,7 @@ const Login = () => {
   return (
     <div className="mainContainer">
       <div className="loginContainer">
-        <div className={styles.logoContainer}>Welcome to Tic Tac Toe!</div>
+        <h1 className={styles.logoContainer} >Welcome to Tic Tac Toe!</h1>
         <p
           ref={errRef}
           className={errMsg ? "warning" : "offscreen"}
@@ -118,7 +118,7 @@ const Login = () => {
           />
         </div>
         <div className={styles.buttonContainer}>
-          <button className={styles.loginButton} onClick={handleLogin}>
+          <button aria-label="Login" className={styles.loginButton} onClick={handleLogin}>
             Login
           </button>
         </div>

@@ -15,6 +15,7 @@ function App() {
   const [playerSymbol, setPlayerSymbol] = useState("x");
   const [currentUser, setCurrentUser] = useState("");
   const [isInRoom, setisInRoom] = useState(false);
+
   const roomId = null;
 
   //store sessionID in localStorage
@@ -39,6 +40,7 @@ function App() {
     isInRoom,
     setisInRoom,
     roomId,
+
   };
 
   return (

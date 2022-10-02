@@ -43,15 +43,17 @@ const JoinGame = () => {
 
     console.log("rival: ", rivalUsername);
     try {
-      const token = localStorage.getItem("auth_token");
-      console.log('JOIN GAME: ', {token})
-      const response = await axios.post(`${allUsersRoute}/${rivalUsername}`, {token})
+      // const token = localStorage.getItem("auth_token");
+      // console.log('JOIN GAME: ', {token})
+      const response = await axios.post(`${allUsersRoute}/${rivalUsername}`);
 
-      console.log(response.data);
-      console.log("current User if type own name: ", currentUser);
+      console.log("JOIN GAME RESPONSE FROM AXIOS: ", response.data);
+      console.log("current User: ", currentUser);
 
       if (rivalUsername === currentUser || !response.data.status) {
         setErrMsg("Please enter a valid username.");
+        setIsJoining(false);
+        gameId.current.focus();
         errRef.current.focus();
       } else {
         setErrMsg("");
@@ -60,8 +62,9 @@ const JoinGame = () => {
         // const ownSocketId = localStorage.getItem("sessionID")
         socket.emit("join_game", rivalUsername, currentUser);
 
-        socket.on("room_joined", ({ isStartGame, roomId }) => {
+        socket.on("room_joined", ({ isStartGame }) => {
           // setisInRoom(true);
+          localStorage.setItem("rivalUsername", rivalUsername);
           console.log("isSTartGame value passed by room_joined: ", isStartGame);
           setGameStarted(isStartGame);
           console.log(
@@ -84,9 +87,11 @@ const JoinGame = () => {
 
   return (
     <div className="mainContainer">
-      <NavBar/>
+      <nav>
+      <NavBar aria-label="logout"/>
+      </nav>
       <div className={styles.joinGameContainer}>
-        <h2 className={styles.createGame}> Create Game </h2>
+        <h1 className={styles.createGame}> Create Game </h1>
         <p
           ref={errRef}
           className={errMsg ? "warning" : "offscreen"}
@@ -102,6 +107,7 @@ const JoinGame = () => {
           onChange={(event) => setRivalUsername(event.target.value)}
         />
         <button
+          type="button"
           className={styles.joinButton}
           onClick={handlecreateRoom}
           disabled={isJoining}

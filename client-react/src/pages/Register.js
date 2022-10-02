@@ -136,7 +136,7 @@ const Register = () => {
   return (
     <div className="mainContainer">
       <div className="loginContainer">
-        <div className={styles.logoContainer}>Welcome to Tic Tac Toe!</div>
+        <h1 className={styles.logoContainer}>Welcome to Tic Tac Toe!</h1>
         <p
           ref={errRef}
           className={errMsg ? "warning" : "offscreen"}
@@ -264,7 +264,7 @@ const Register = () => {
             Register
           </button>
         </div>
-        <p className={styles.registerContainer}>
+        <p role="status" className={styles.registerContainer}>
           Already have an account?
           <br />
           <Link to="/login" className={styles.link}>

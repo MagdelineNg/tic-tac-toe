@@ -70,16 +70,12 @@ module.exports.logout = async (req, res) => {
 }
 
 module.exports.checkRival = async (req, res) => {
-    try{
         user = req.params.username
         const isExist = await User.findOne({ user })  //findOne returns null, find doenst
         if (!isExist){
             return res.json({status: false})
         }
         return res.json( {status: true})
-    }catch(e){
-      console.log(e.message)
-    }
 }
 
 module.exports.getPastGames = async (req, res) => {

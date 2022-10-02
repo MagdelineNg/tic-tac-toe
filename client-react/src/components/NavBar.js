@@ -34,7 +34,7 @@ const NavBar = () => {
   return (
     <header className={styles.header}>
       <h1> Tic Tac Toe</h1>
-      <button onClick={handleLogout} className={styles.logoutButton}>
+      <button aria-label="logout" tabindex="0" onClick={handleLogout} className={styles.logoutButton}>
         Logout
       </button>
     </header>

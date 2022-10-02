@@ -104,12 +104,13 @@ io.on("connection", (socket, client) => {
 
   socket.on("save_game", async ({ currentUser, message, matrix }) => {
     console.log("save game matrix: ", matrix)
+    console.log("save game message: ", message)
     const user = await User.updateOne(
       { user: currentUser },
       {
         $push: { allMatrix: matrix, result: message },
       }
     );
-    console.log("updated user after saving: ", user)
+    console.log("updated user from save_game: ", user)
   })
 });

@@ -8,14 +8,17 @@ const auth = async (req, res, next) => {
         //validate token
         const token = req.body.token.replace('Bearer ', '')
 
-        const decoded = jwt.verify(token, "ilovereact", (err, user) => {
+        const decoded = jwt.verify(token, "ilovereact"
+        , (err, user) => {
             if (err){
                 // console.log("decoded E3RROR: ", err)
                 return err.message
             } else{
+                console.log("USER IN AUTH:", user)
                 return user
             }
         })
+        console.log("DECODED: ", decoded)
         console.log("AUTH USER ID: ", decoded._id)
         const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
 
