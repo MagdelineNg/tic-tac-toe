@@ -7,6 +7,12 @@ import styles from "../styles/Game.module.css";
 import { pastGamesRoute } from "../utils/APIRoutes";
 import axios from "axios";
 import NavBar from "../components/NavBar";
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 //todo: move css to another file
 const Separator = styled.div`
@@ -102,6 +108,7 @@ const Game = () => {
   const [pastResults, setPastResults] = useState([]);
   const [noPastGames, setNoPastGames] = useState(false);
   const [viewPastGames, setViewPastGames] = useState(false);
+  const [alert, setAlert] = useState("");
 
   const [matrix, setMatrix] = useState([
     ["", "", ""],
@@ -184,7 +191,8 @@ const Game = () => {
       socket.emit("game_win", rivalMessage);
       socket.emit("save_game", { currentUser, message, matrix });
       setNoPastGames(false);
-      alert(message);
+      setAlert(message);
+      setOpen(true)
     } else if (currentPlayerWon && !otherPlayerWon) {
       const otherMessage = `You lost to ${currentUser}`;
       socket.emit("game_win", otherMessage);
@@ -193,7 +201,8 @@ const Game = () => {
 
       const message = `You won against ${rival}`;
       socket.emit("save_game", { currentUser, message, matrix });
-      alert(message);
+      setAlert(message);
+      setOpen(true)
     }
     setPlayerTurn(false);
   };
@@ -202,7 +211,8 @@ const Game = () => {
     socket.on("on_game_win", (message) => {
       socket.emit("save_game", { currentUser, message, matrix });
       setPlayerTurn(false);
-      alert(message);
+      setAlert(message);
+      setOpen(true)
     });
   };
 
@@ -251,10 +261,33 @@ const Game = () => {
     setViewPastGames(true);
   };
 
+  const [open,setOpen]=useState(false)
+
+  const handleClose = () => {
+    setOpen(false)
+  };
+
+
   return (
     <React.Fragment>
-      <NavBar title="  Join Game" aria-label="logout" />
+      <NavBar title="  Game room" aria-label="logout" />
       <Separator />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">The game has ended!</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {alert}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Ok!</Button>
+        </DialogActions>
+      </Dialog>
       <GameContainer>
         {!isGameStarted && (
           <h2>Waiting for Other Player to Join to Start the Game!</h2>

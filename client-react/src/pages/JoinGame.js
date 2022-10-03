@@ -42,7 +42,7 @@ const JoinGame = () => {
       const response = await axios.post(`${allUsersRoute}/${rivalUsername}`);
 
       if (rivalUsername === currentUser || !response.data.status) {
-        setErrMsg("Please enter a valid username.");
+        setErrMsg("Enter an existing username to play with the user.");
         setIsJoining(false);
         gameId.current.focus();
         errRef.current.focus();
