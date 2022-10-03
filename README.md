@@ -1,8 +1,6 @@
 # tic-tac-toe
 My attempt to code a full-stack website of a multiplayer game inclusive to screen reader users :)
 
-Website URL: [https://magd-tic-tac-toe.herokuapp.com/](https://magd-tic-tac-toe.herokuapp.com/)
-
 ## Available scripts
 In the project directory, you can run:
 1. Install server dependencies.
