@@ -44,7 +44,7 @@ npm start
      - I made use of **semantic HTML** (main, section, nav etc.) and `React.Fragment` (does not add to DOM) instead of divs.
      - I placed focus on manual focus management.
         - If user input triggers an error, use `useEffect()` with `input.error.focus()` to return focus back to the input field/element after displaying alert message/once a component renders. e.g. User returns to user input field after entering an invalid username/User brought to username field immediately upon loading of registration page
-     - I used ria attributes e.g. `aria-live="assertive"` so screen reader announces errMsg, `aria-invalid` and 'aria-describedBy' for screen reader to read requirements of all input fields 
+     - I used ria attributes e.g. `aria-live="assertive"` so screen reader announces errMsg, `aria-invalid` and `aria-describedBy` for screen reader to read requirements of all input fields 
      - Placed errMsg `"offscreen"` instead of `display:none` so it is accessible to screen readers.
      - Matched label to input using `htmlFor` and `id` respectively so screen readers can read requirements of input 
      - Use heading labels and `tabindex` to ensure keyboard accessibility (especially for interactive elements e.g. input and button)
