@@ -1,5 +1,5 @@
 # tic-tac-toe
-My attempt to code a full-stack website of a multiplayer game inclusive to screen reader users :)
+This is a multiplayer game inclusive to screen reader users.
 
 ## Available scripts
 In the project directory, you can run:
